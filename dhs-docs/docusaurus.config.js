@@ -6,44 +6,46 @@ const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 // ###########################
-const footerdictionary = {
-  style: "dark",
-  logo: {
-    alt: "DHS Logo",
-    src: "img/logo-white.svg",
-    href: "https://your-dhs-website.com",
-    width: 160,
-  },
-  links: [
-    {
-      title: "Documentation",
-      items: [
-        { label: "Quick Start", to: "/docs/quick-start" },
-        { label: "API Reference", to: "/docs/api" },
-        { label: "Troubleshooting", to: "/docs/troubleshooting" },
-      ],
-    },
-    {
-      title: "Community",
-      items: [
-        {
-          label: "GitHub",
-          href: "https://github.com/Prashu7487/DHS-Documentation",
-        },
-        { label: "Forum", href: "#" },
-        { label: "Twitter", href: "#" },
-      ],
-    },
-    {
-      title: "Legal",
-      items: [
-        { label: "Privacy", to: "/privacy" },
-        { label: "Terms", to: "/terms" },
-      ],
-    },
-  ],
-  copyright: `Copyright © ${new Date().getFullYear()} DHS Project. Built with Docusaurus.`,
-};
+
+// const footerdictionary = {
+//   style: "dark",
+//   logo: {
+//     alt: "DHS Logo",
+//     src: "img/logo-white.svg",
+//     href: "https://your-dhs-website.com",
+//     width: 160,
+//     className: "ml-auto order-last md:order-none w-40", // Tailwind classes
+//   },
+//   links: [
+//     {
+//       title: "Documentation",
+//       items: [
+//         { label: "Quick Start", to: "/docs/quick-start" },
+//         { label: "API Reference", to: "/docs/api" },
+//         { label: "Troubleshooting", to: "/docs/troubleshooting" },
+//       ],
+//     },
+//     {
+//       title: "Community",
+//       items: [
+//         {
+//           label: "GitHub",
+//           href: "https://github.com/Prashu7487/DHS-Documentation",
+//         },
+//         { label: "Forum", href: "#" },
+//         { label: "Twitter", href: "#" },
+//       ],
+//     },
+//     {
+//       title: "Legal",
+//       items: [
+//         { label: "Privacy", to: "/privacy" },
+//         { label: "Terms", to: "/terms" },
+//       ],
+//     },
+//   ],
+//   copyright: `Copyright © ${new Date().getFullYear()} DHS Project. Built with Docusaurus.`,
+// };
 
 // #######################
 
@@ -123,7 +125,7 @@ const config = {
           },
         ],
       },
-      footer: footerdictionary,
+      // footer: footerdictionary,
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
