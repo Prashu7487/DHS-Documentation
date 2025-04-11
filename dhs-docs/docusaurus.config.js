@@ -56,11 +56,11 @@ const config = {
   favicon: "img/favicon.ico",
 
   url: "https://Prashu7487.github.io",
-  baseUrl: "/dhs-docs/",
+  baseUrl: "/DHS-Documentation/", // must match the repo name
 
   organizationName: "Prashu7487", // GitHub username
   projectName: "DHS-Documentation", // GitHub repo name
-  deploymentBranch: "dhs-docs",
+  deploymentBranch: "gh-pages", // don't change this
 
   trailingSlash: false,
   onBrokenLinks: "warn", // "throw" | "ignore", throw will stop the build
