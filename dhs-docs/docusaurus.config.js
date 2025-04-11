@@ -59,10 +59,11 @@ const config = {
   baseUrl: "/dhs-docs/",
 
   organizationName: "Prashu7487", // GitHub username
-  projectName: "dhs-docs", // GitHub repo name
-  deploymentBranch: "gh-pages",
+  projectName: "DHS-Documentation", // GitHub repo name
+  deploymentBranch: "dhs-docs",
 
-  onBrokenLinks: "throw",
+  trailingSlash: false,
+  onBrokenLinks: "warn", // "throw" | "ignore", throw will stop the build
   onBrokenMarkdownLinks: "warn",
 
   i18n: {
