@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdhs_docs=self.webpackChunkdhs_docs||[]).push([[698],{6417:s=>{s.exports=JSON.parse('{"tags":[{"label":"Update","permalink":"/dhs-docs/blog/tags/update","count":1},{"label":"Launch","permalink":"/dhs-docs/blog/tags/launch","count":1}]}')}}]);
