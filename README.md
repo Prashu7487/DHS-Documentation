@@ -44,3 +44,33 @@ module.exports = {
 
 ```
 
+
+## verify these details in "docusaurus.config.js" before deploying 
+```
+title: "DHS Documentation Project",
+tagline: "Preparing Digital Goods for AI in Healthcare",
+favicon: "img/favicon.ico",
+
+url: "https://Prashu7487.github.io",
+baseUrl: "/DHS-Documentation/", // must match the repo name
+
+organizationName: "Prashu7487", // GitHub username
+projectName: "DHS-Documentation", // GitHub repo name
+deploymentBranch: "gh-pages", // this same branch is mandatory
+
+trailingSlash: false,
+onBrokenLinks: "warn", (warning of broken links during build)
+onBrokenMarkdownLinks: "warn",
+```
+
+## Deploy 
+
+```
+# first check by building
+npm run dev
+
+# deploy
+GIT_USER=Prashu7487 npm run deploy
+
+# Be ready with the access key for above account (enter when prompted for password)
+```
