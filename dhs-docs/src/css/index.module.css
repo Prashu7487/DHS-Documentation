@@ -1,0 +1,156 @@
+:root {
+  --section-spacing: 4rem;
+  --card-spacing: 1.5rem;
+}
+
+/* Hero Section */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  padding: 4rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.heroContent {
+  flex: 1;
+}
+
+.heroImage {
+  flex: 1;
+  text-align: right;
+}
+
+.heroImage img {
+  max-width: 500px;
+  height: auto;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 2rem;
+}
+
+.heroCta {
+  margin-top: 2rem;
+}
+
+/* Main Sections */
+.main {
+  padding: var(--section-spacing) 1rem;
+}
+
+.section {
+  max-width: 1200px;
+  margin: 0 auto var(--section-spacing);
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 3rem;
+  font-size: 2rem;
+}
+
+/* Feature Grid */
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.featureCard {
+  padding: var(--card-spacing);
+  border-radius: 8px;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  transition: transform 0.2s;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+}
+
+/* Update Grid */
+.updateGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.updateCard {
+  position: relative;
+  padding: var(--card-spacing);
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.updateBadge {
+  position: absolute;
+  top: -12px;
+  right: 20px;
+  background: var(--ifm-color-primary);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.updateLink {
+  margin-top: 1rem;
+  display: inline-block;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 996px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+
+  .heroImage {
+    order: -1;
+    text-align: center;
+  }
+
+  .heroImage img {
+    max-width: 400px;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.75rem;
+  }
+
+  :root {
+    --section-spacing: 3rem;
+    --card-spacing: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .heroTitle {
+    font-size: 1.75rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
