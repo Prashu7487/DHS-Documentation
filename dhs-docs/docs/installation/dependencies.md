@@ -1,18 +1,17 @@
 # Installation & Dependencies
 
-This section outlines the required tools and libraries for setting up DHS Project locally or in the cloud.
+This section outlines the installation steps for the FedClient and the FedServer locally or in the cloud.
 
 ---
 
-## 📦 Frontend Requirements
+## 📦 FedClient
 
 ```bash
-npm install @heroicons/react
-npm install d3 chart.js react-chartjs-2
+git pull https://github.com/Prashu7487/FedClient.git
 ```
-## 🐍 Backend Requirements
+
+## 🐍 FedServer
 
 ```bash
-pip install fastapi hdfs pyspark uvicorn pandas pyarrow fastparquet python-dotenv "uvicorn[standard]"
+git pull https://github.com/YashvirSinghNathawat/FedServer.git
 ```
-

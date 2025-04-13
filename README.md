@@ -44,8 +44,8 @@ module.exports = {
 
 ```
 
+## verify these details in "docusaurus.config.js" before deploying
 
-## verify these details in "docusaurus.config.js" before deploying 
 ```
 title: "DHS Documentation Project",
 tagline: "Preparing Digital Goods for AI in Healthcare",
@@ -63,7 +63,7 @@ onBrokenLinks: "warn", (warning of broken links during build)
 onBrokenMarkdownLinks: "warn",
 ```
 
-## Deploy 
+## Deploy
 
 ```
 # first check by building

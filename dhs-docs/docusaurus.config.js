@@ -53,7 +53,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "DHS Documentation Project",
   tagline: "Preparing Digital Goods for AI in Healthcare",
-  favicon: "img/favicon.ico",
+  favicon: "img/favicon.svg",
 
   url: "https://Prashu7487.github.io",
   baseUrl: "/DHS-Documentation/", // must match the repo name
@@ -85,7 +85,8 @@ const config = {
         },
         blog: {
           showReadingTime: true,
-          editUrl: "https://github.com/Prashu7487/dhs-docs/edit/main/blog/",
+          editUrl:
+            "https://github.com/Prashu7487/DHS-Documentation/edit/main/blog/",
           feedOptions: {
             type: ["rss", "atom"],
             xslt: true,
@@ -130,7 +131,8 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ["bash", "python"],
+        additionalLanguages: ["bash", "python", "xml", "yaml", "json"],
+        defaultLanguage: "bash",
       },
     }),
 };
