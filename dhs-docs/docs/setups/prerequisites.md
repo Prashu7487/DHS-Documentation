@@ -1,4 +1,4 @@
-# Prerequisite Guide for Hadoop Setup 🚀🐧
+# Prerequisite Guide 
 
 > **Note:** This guide works for WSL and Linux based systems.
 

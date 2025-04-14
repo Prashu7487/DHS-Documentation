@@ -1,4 +1,4 @@
-# 🔗 AWS Integration with Hadoop & Spark
+# AWS Integration
 
 ---
 
