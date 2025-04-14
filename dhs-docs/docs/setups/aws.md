@@ -50,9 +50,9 @@ aws configure
 
 Provide the following details:
 
-- Access Key ID: <your-access-key>
-- Secret Key: <your-secret-key>
-- Region: <your-region> # (e.g., ap-south-1)
+- Access Key ID: your-access-key
+- Secret Key: your-secret-key
+- Region: your-region (e.g., ap-south-1)
 - Output: json
 
 ## 🌐 Connect S3 with HDFS
@@ -64,7 +64,7 @@ cd ~/hadoop/hadoop-3.4.1/etc/hadoop
 nano core-site.xml
 ```
 
-**Append** the following properties inside the <configuration> tag:
+**Append** the following properties inside the "configuration" tag:
 
 ```xml
 <configuration>

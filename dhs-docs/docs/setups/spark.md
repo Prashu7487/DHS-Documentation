@@ -129,7 +129,7 @@ Spark provides several daemons to manage distributed jobs.
 - Worker: Executes the tasks sent by the master.
 - History Server: Provides a web UI to view completed job histories.
 
-**Note:** There is a script in <this this> section using which you can start all hadoop and spark services at once.
+**Note:** There is a script in additional setup section using which you can start all hadoop and spark services at once.
 Start the services:
 
 ```bash
