@@ -1,4 +1,4 @@
-# Additional information
+# Additional Setup
 
 ---
 

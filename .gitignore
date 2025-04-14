@@ -7,5 +7,9 @@ dhs-docs/build
 ./dhs-docs/docs/tutorial-extras
 dhs-docs/docs/tutorial-basics
 dhs-docs/docs/tutorial-extras
+./tutorial_basics
+./tutorial_extras
+tutorial_basics
+tutorial_extras
 
 

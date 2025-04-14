@@ -15,10 +15,11 @@ const sidebars = {
       type: "category",
       label: "Setups",
       items: [
+        "setups/prerequisites",
         "setups/hadoop",
         "setups/spark",
         "setups/aws",
-        "setups/config-files",
+        "setups/additional-setup",
       ],
     },
     {
