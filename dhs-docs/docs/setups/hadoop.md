@@ -23,6 +23,8 @@ tar -xvzf hadoop-3.4.1.tar.gz -C ~/hadoop
 
 ## 🌍 Set Environment Variables
 
+Open your `~/.bashrc` file for editing:
+
 ```bash
 nano ~/.bashrc
 ```
@@ -49,19 +51,21 @@ export PATH=/usr/bin:/bin:$PATH
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
 ```
 
-For applying all these changes to the current Terminal, execute the source command.
+Apply the changes immediately:
 
 ```bash
 source ~/.bashrc
 ```
 
-make sure hadoop is completely installed, check by executing this command
+Verify the Hadoop installation by checking the version:
 
-```
+```bash
 hadoop version
+```
 
-# this will give output like this
-<!--
+Expected output (sample):
+
+```bash
 Hadoop 3.4.1
 Source code repository https://github.com/apache/hadoop.git -r 4d7825309348956336b8f06a08322b78422849b1
 Compiled by mthakur on 2024-10-09T14:57Z
@@ -69,12 +73,11 @@ Compiled on platform linux-x86_64
 Compiled with protoc 3.23.4
 From source with checksum 7292fe9dba5e2e44e3a9f763fce3e680
 This command was run using /home/prashu/hadoop/hadoop-3.4.1/share/hadoop/common/hadoop-common-3.4.1.jar
--->
 ```
 
 ## 🗂️ Create Directories
 
-These directories will be used for storing logs, and metadata.
+These directories will be used for storing logs, temporary files, and metadata.
 
 ```bash
 mkdir -p $HADOOP_HOME/logs
@@ -94,11 +97,11 @@ All the Hadoop configuration files should be located in the `~/hadoop/hadoop-3.4
 cd ~/hadoop/hadoop-3.4.1/etc/hadoop
 ```
 
-The configuration setup steps are as follows:
+📌 The configuration setup steps are as follows:
 
 ### Hadoop Configuration Files
 
-Hadoop’s Java configuration is driven by two types of important configuration files:
+📝 Hadoop’s Java configuration is driven by two types of important configuration files:
 
 **Read-only default configuration** - core-default.xml, hdfs-default.xml, yarn-default.xml and mapred-default.xml.
 **Site-specific configuration** - etc/hadoop/core-site.xml, etc/hadoop/hdfs-site.xml, etc/hadoop/yarn-site.xml and etc/hadoop/mapred-site.xml.
@@ -138,30 +141,6 @@ Set this properties in this file (these are basic for more specific setup visit 
         <name>hadoop.tmp.dir</name>
         <value>file:///home/prashu/hadoop/hadoop-3.4.1/tmp</value>
     </property>
-
-
-    <!-- for AWS and distcp setup -->
-    <property>
-        <name>fs.s3a.impl</name>
-        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
-    </property>
-
-        <property>
-        <name>fs.s3a.aws.credentials.provider</name>
-        <value>software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider</value>
-        <!-- value will be com.amazonaws.auth.DefaultAWSCredentialsProviderChain for SDK v2-->
-    </property>
-
-    <property>
-        <name>fs.s3a.fast.upload</name>
-        <value>true</value>
-    </property>
-
-    <property>
-        <name>fs.s3a.connection.maximum</name>
-        <value>100</value>
-    </property>
-
 </configuration>
 ```
 
@@ -253,7 +232,7 @@ cd ~/hadoop/hadoop-3.4.1
 bin/hdfs namenode -format
 ```
 
-### Starting hadoop daemons-
+## 🚀 Starting hadoop daemons-
 
 The NameNode is the centerpiece of an HDFS file system. It keeps the directory tree of all files stored in the HDFS and tracks all the files stored across the cluster.
 
@@ -268,13 +247,13 @@ these are the commands to start all hadoop deamons at once, however you can alwa
  ~/hadoop/hadoop-3.4.1/sbin/stop-all.sh
 ```
 
-## Check the started services
+## 🔍 Check the running services
 
 ```bash
 jps
 ```
 
-## 📌 Create HDFS Folders to store real datasets
+## 📂 Create HDFS Folders to store real datasets
 
 ```bash
 # you can check username ny `whoami` command
@@ -282,10 +261,12 @@ hdfs dfs -mkdir /user
 hdfs dfs -mkdir /user/<user-name>/{tmpuploads,uploads,processed}
 ```
 
-**Note:** Make sure to upload datasets only to the tmpuploads folder. Access the dataset from the "Recently Uploaded Datasets" section on the FedClient for further use.
-The uploads and processed directories should be used programmatically only. Otherwise, inconsistencies may occur, potentially resulting in internal failures.
+**Note:**
 
-## Sample commands for further use-
+- Upload datasets only to the tmpuploads folder.
+- The uploads and processed directories should be used programmatically only to avoid inconsistencies and internal failures.
+
+## 📝 Sample commands for further use-
 
 ```bash
 # these commands are for hadoop on wsl,change accordingly
@@ -301,7 +282,7 @@ hdfs dfs -put /mnt/d/projects/datasets/filename.csv /user/username/tmpuploads/fi
 hdfs dfs -rm -r /path/to/remove
 ```
 
-## Access hadoop web services-
+## 🌐 Access hadoop web services-
 
 **WARNING:** links may change as per port availability, and use your public IP in place of localhost for deployed cluster.
 
