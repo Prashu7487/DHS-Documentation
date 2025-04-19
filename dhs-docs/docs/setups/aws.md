@@ -55,6 +55,18 @@ Provide the following details:
 - Region: your-region (e.g., ap-south-1)
 - Output: json
 
+## ✅ verify that details are configured and change directory permission
+
+**Notice:** that the details printed should be listed under `[default]` profile.
+
+```bash
+cat ~/.aws/credentials
+
+# change permissions
+sudo chmod 700 ~/.aws/credentials
+
+```
+
 ## 🌐 Connect S3 with HDFS
 
 update core-site.xml
@@ -73,18 +85,16 @@ nano core-site.xml
         <name>fs.s3a.impl</name>
         <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
     </property>
-
-        <property>
+    <!-- for sdk v2 -->
+    <!-- <value>software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider</value> -->
+    <property>
         <name>fs.s3a.aws.credentials.provider</name>
-        <value>software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider</value>
-        <!-- value will be com.amazonaws.auth.DefaultAWSCredentialsProviderChain for SDK v2-->
+        <value>com.amazonaws.auth.DefaultAWSCredentialsProviderChain</value>
     </property>
-
     <property>
         <name>fs.s3a.fast.upload</name>
         <value>true</value>
     </property>
-
     <property>
         <name>fs.s3a.connection.maximum</name>
         <value>100</value>
@@ -112,16 +122,14 @@ wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.4.1/hadoop-aw
 
 wget https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar -P $HADOOP_HOME/share/hadoop/common/lib/
 
-## install only one of the next 2 (either SDKv1 jar or SDKv2 jar, and be consistent with it in furthur commands)
+# these are 2 jars for aws sdk (v1 and v2), i tried working by either only with v1 setup or only with v2 setup
+# but somehow it's not working (idk the reason yet.. will update later) the setup that works is v1 setup
+# completely with v2 jar also in the `$SPARK_HOME/jars/` path
 
-# For AWS SDKv1 use this and "com.amazonaws.auth.DefaultAWSCredentialsProviderChain" class as credential provider
 wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar -P $HADOOP_HOME/share/hadoop/common/lib/
 
-# OR, for  AWS SDKv2 (hadoop 3.4+)  use this and "software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider" as credential provider
-wget https://repo1.maven.org/maven2/software/amazon/awssdk/bundle/2.24.6/bundle-2.24.6.jar -P $HADOOP_HOME/share/hadoop/common/lib/
+wget https://repo1.maven.org/maven2/software/amazon/awssdk/bundle/2.24.6/bundle-2.24.6.jar -P $SPARK_HOME/jars/
 ```
-
-**Note:** If the SDK v2 credential class doesn’t work, fallback to using "com.amazonaws.auth.DefaultAWSCredentialsProviderChain".
 
 ## 🔄 Resolve Spark-Hadoop Version Conflict
 
@@ -142,7 +150,22 @@ HADOOP_LIBS_DIR=$HADOOP_HOME/share/hadoop
 cp $HADOOP_LIBS_DIR/common/hadoop-common-3.4.1.jar $SPARK_HOME/jars/
 cp $HADOOP_LIBS_DIR/common/lib/hadoop-aws-3.4.1.jar $SPARK_HOME/jars/
 cp $HADOOP_LIBS_DIR/common/lib/guava-27.0-jre.jar $SPARK_HOME/jars/
-cp $HADOOP_LIBS_DIR/common/lib/bundle-2.24.6.jar $SPARK_HOME/jars/ (or aws-java-sdk-bundle-1.12.262.jar as per prev step)
+cp $HADOOP_LIBS_DIR/common/lib/aws-java-sdk-bundle-1.12.262.jar $SPARK_HOME/jars/
+```
+
+## Verify jars placement
+
+```bash
+ls $HADOOP_HOME/share/hadoop/common/lib/guava-*.jar
+ls $SPARK_HOME/jars/guava-*.jar
+# both should show: /home/ubuntu/hadoop/hadoop-3.4.1/share/hadoop/common/lib/guava-27.0-jre.jar
+
+ls ~/spark/spark-3.5.5-bin-hadoop3/jars/*bundle*
+# /home/ubuntu/spark/spark-3.5.5-bin-hadoop3/jars/aws-java-sdk-bundle-1.12.262.jar
+# /home/ubuntu/spark/spark-3.5.5-bin-hadoop3/jars/bundle-2.24.6.jar
+
+ls ~/hadoop/hadoop-3.4.1/share/hadoop/common/lib/*bundle*
+# /home/ubuntu/hadoop/hadoop-3.4.1/share/hadoop/common/lib/aws-java-sdk-bundle-1.12.262.jar
 ```
 
 ## ☁️ Upload Spark JARs to HDFS
@@ -167,23 +190,18 @@ nano $SPARK_HOME/conf/spark-defaults.conf
 Append the following:
 
 ```bash
-# HDFS as default filesystem
-spark.hadoop.fs.defaultFS hdfs://0.0.0.0:9000
-
 # S3A configuration
-# spark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem
+spark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem
 spark.hadoop.fs.s3a.endpoint s3.amazonaws.com
 
+# for sdk v2: `spark.hadoop.fs.s3a.aws.credentials.provider software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider`
+spark.hadoop.fs.s3a.aws.credentials.provider com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 # Performance optimizations (optional)
 spark.hadoop.fs.s3a.connection.maximum 1000
 spark.hadoop.fs.s3a.fast.upload true
 
-# for sdk v2: spark.hadoop.fs.s3a.aws.credentials.provider software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
-spark.hadoop.fs.s3a.aws.credentials.provider com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-
-spark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem
+#tell spark the location of yarn jars, useful in comm. with yarn
 spark.yarn.jars hdfs:///spark-jars/*
-
 ```
 
 ## 📁 Optional: Validate Configuration Files

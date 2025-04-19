@@ -1,4 +1,4 @@
-# Prerequisite Guide 
+# Prerequisite Guide
 
 > **Note:** This guide works for WSL and Linux based systems.
 
@@ -35,7 +35,7 @@ chmod 0600 ~/.ssh/authorized_keys
 Now `ssh localhost` should work without requiring a passphrase.
 (Tip: Always backup your keys if you plan to regenerate them!)
 
-## 🧰 Step 2 - Install Java
+## 🧰 Install Java
 
 Hadoop requires JAVA to work so we'll proceed with JAVA installation
 
@@ -57,12 +57,46 @@ OpenJDK Runtime Environment (build 1.8.0_442-8u442-b06~us1-0ubuntu1~22.04-b06)
 OpenJDK 64-Bit Server VM (build 25.442-b06, mixed mode)
 ```
 
+## 🗺️ Configure `/etc/hosts` with your Private IP
+
+This ensures correct address resolution for all running daemons.
+📌 Important: Update this entry whenever your EC2 private IP address changes.
+
+```bash
+sudo nano /etc/hosts
+
+# Replace with your EC2 private IP
+172.31.47.110  ip-172-31-47-110
+```
+
+## 🔧 Set nice Value Limits for your user
+
+This setting allows Hadoop to change the priority of its daemons at runtime. Update it to match your username, as the current configuration is set for the user `ubuntu`.
+
+```bash
+sudo nano /etc/security/limits.conf
+
+ubuntu  soft  nice  -20
+ubuntu  hard  nice  -20
+```
+
+### 🔍 Verify updated limit
+
+**Note:** This will take effect after reboot.
+
+```bash
+ulimit -e
+# should show 20
+```
+
 ## 🧰 Summary of Prerequisites
 
 - Java 8 OpenJDK
 - SSH configured between nodes
 - Proper user permissions and folders created (check using `stat path/to/folder`)
   - Full rwx permission for the intended user is required
+- added `/etc/hosts` for correct address resolution
+- changed `nice` value of current user
 
 Proceed to Hadoop installation only after completing these steps. 😎👍
 

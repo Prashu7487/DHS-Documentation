@@ -26,12 +26,18 @@ Setup spark environment variables at the end of the .bashrc file as below and th
 
 ```bash
 # Adding env vars for Spark (venv is the virtaul environment with pyspark and other dependencies installed)
-export PYSPARK_PYTHON=~/venv/bin/python
-export PYSPARK_DRIVER_PYTHON=~/venv/bin/python
+# wslenv is virtual env with pyspark==3.5.5
+export PYSPARK_PYTHON=$HOME/wslenv/bin/python
+export PYSPARK_DRIVER_PYTHON=$HOME/wslenv/bin/python
 
 # Spark environment variables
 export SPARK_HOME=$HOME/spark/spark-3.5.5-bin-hadoop3
 export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+
+# export SPARK_LOCAL_IP=$(hostname -I | awk '{print $1}')
+# export SPARK_MASTER_HOST=${SPARK_LOCAL_IP}
+# export SPARK_LOCAL_HOSTNAME=${SPARK_LOCAL_IP}
+
 ```
 
 Apply the changes to the current terminal session:
@@ -61,16 +67,22 @@ nano $SPARK_HOME/conf/spark-env.sh
 Add the following configurations:
 
 ```bash
+# Core Paths
+export SPARK_LOCAL_IP=$(hostname -I | awk '{print $1}')
+export SPARK_MASTER_HOST=$(hostname -I | awk '{print $1}')
+#export SPARK_LOCAL_HOSTNAME=$(hostname -I | awk '{print $1}')
+
+# Hadoop Integration
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
-export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH  # Native Hadoop libs
+export SPARK_DIST_CLASSPATH=$($HADOOP_HOME/bin/hadoop classpath)
+export LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$LD_LIBRARY_PATH
+export YARN_CONF_DIR=$HADOOP_HOME/etc/hadoop
 
-# Include Hadoop's classpath to avoid version conflicts later
-export SPARK_DIST_CLASSPATH=$(hadoop classpath)
-export YARN_CONF_DIR=$HADOOP_CONF_DIR
-
-# private IP (hostname -I)
-export SPARK_LOCAL_IP=127.0.0.1
-export SPARK_MASTER_HOST=localhost
+#For standalone cluster Mode Settings, total memory should be less than avail (consider mry for OS too)
+#export SPARK_WORKER_CORES=2
+#export SPARK_WORKER_MEMORY=2g
+# export SPARK_MASTER_PORT=7077
+# export SPARK_MASTER_WEBUI_PORT=8080
 ```
 
 ### 2. `spark-defaults.conf`
@@ -82,14 +94,22 @@ nano $SPARK_HOME/conf/spark-defaults.conf
 ```
 
 Sample configuration:
+**Note:** For a single-node cluster, make sure to use your actual private IP address directly in the configuration file. Avoid using variables from `~/.bashrc` file, as daemon processes might run in a different environment and may not be able to interpret those variables.
 
 ```bash
-# spark master
-export SPARK_MASTER_HOST=localhost # or (0.0.0.0) to allow connection from everywhere
-export SPARK_LOCAL_IP=127.0.0.1  # or (0.0.0.0) to allow connection from everywhere
-
 # HDFS as default filesystem
-spark.hadoop.fs.defaultFS hdfs://0.0.0.0:9000
+spark.hadoop.fs.defaultFS hdfs://172.31.47.110:9000
+
+#######################################################
+# configurations below depends on your hardware and usecase
+# this is for m5.2xlarge ec2 type
+######################################################
+
+spark.executor.memory 6g
+spark.executor.cores 2
+spark.executor.instances 3
+# for single node using static allocation is better
+spark.dynamicAllocation.enabled false
 ```
 
 ## 🧹 Clear Spark Cache (Optional)
@@ -102,8 +122,15 @@ rm -rf ~/hadoop/hadoop-3.4.1/tmp/nm-local-dir/usercache/*
 
 ## ✅ Verify Spark Installation
 
-Ensure Hadoop is correctly configured and running before using Spark in yarn mode. Start a PySpark session.
-**Note:** Hadoop and spark services should be started for pyspark command to work
+Ensure Hadoop is correctly configured and running before using Spark in yarn mode.
+
+```bash
+spark-shell
+```
+
+Or test with:
+
+**Note:** Hadoop and spark services should be running for pyspark command to work
 
 ```bash
 pyspark --master yarn --deploy-mode client
@@ -112,13 +139,6 @@ pyspark --master yarn --deploy-mode client
 val data = Seq(("Prashant", 25), ("Spark", 10))
 val df = data.toDF("Name", "Age")
 df.show()
-```
-
-Or test with:
-**Note:** Spark Session will be created even if spark and hadoop services are not running
-
-```bash
-spark-sehll
 ```
 
 ## 🚀 Starting Spark Services
@@ -151,3 +171,34 @@ $SPARK_HOME/sbin/stop-all.sh
 - **Caution:** Ensure that all relevant hadoop and spark services are started before using FedClient's features related to these services
 - **Output Format:** When using multiple workers, Spark may write output as directories instead of single files—plan accordingly.
 - **Networking:** Replace localhost and 127.0.0.1 with private/public IPs in distributed environments.
+
+## 🌐 Access web services-
+
+⚠️ **Important:** Web UI Links May Vary by Port & Access
+
+- For a deployed cluster, replace `localhost` with your public IP address and ensure the required ports are open in your security group.
+- Alternatively, set up an SSH tunnel from your local machine to the server (see script in the `additional-setup` section) to make the following links work properly.
+
+### 🔗 Common Spark Web UIs
+
+<!-- # since spark is running on YARN client mode, so YARN cluster UI will be used -->
+
+- **YARN ResourceManager**: [http://localhost:8088/cluster](http://localhost:8088/cluster)
+- **NodeManager**: [http://localhost:8042/node/](http://localhost:8042/node/)
+
+You can use these web UIs to monitor and debug most aspects of the system. However, for programmatic access or command-line inspection, the following commands can be useful:
+
+```bash
+# Monitor YARN resource usage in real-time
+yarn top
+
+# View the latest 50 lines of the log
+# use tail -n 50 for last 50 lines of log
+# real-time
+tail -f $SPARK_HOME/logs/*.out
+tail -f $SPARK_HOME/logs/*Master*.out
+tail -f $SPARK_HOME/logs/*Worker*.out
+
+```
+
+---

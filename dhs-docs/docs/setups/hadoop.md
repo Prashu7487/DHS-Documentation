@@ -34,6 +34,7 @@ Setup Hadoop and Java environment variables at the end of the .bashrc file as be
 ```bash
 # Hadoop environment variables
 # ~ is replaced with $HOME, change if needed in future
+# match from your actual path
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 export HADOOP_HOME=$HOME/hadoop/hadoop-3.4.1
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
@@ -81,10 +82,13 @@ These directories will be used for storing logs, temporary files, and metadata.
 
 ```bash
 mkdir -p $HADOOP_HOME/logs
-mkdir -p $HADOOP_HOME/tmp
-mkdir -p $HADOOP_HOME/data
-mkdir -p $HADOOP_HOME/data/namenode
-mkdir -p $HADOOP_HOME/data/datanode
+mkdir -p ~/hadoop/{tmp,logs,data/{namenode,datanode}}
+```
+
+## 🔑 Change the permission of hadoop directory
+
+```bash
+chmod -R 755 ~/hadoop
 ```
 
 ## 🔧 Configure Hadoop for Single Node Setup (pseudo-distributed mode)
@@ -106,6 +110,8 @@ cd ~/hadoop/hadoop-3.4.1/etc/hadoop
 **Read-only default configuration** - core-default.xml, hdfs-default.xml, yarn-default.xml and mapred-default.xml.
 **Site-specific configuration** - etc/hadoop/core-site.xml, etc/hadoop/hdfs-site.xml, etc/hadoop/yarn-site.xml and etc/hadoop/mapred-site.xml.
 
+**Note:** For a single-node cluster, make sure to use your actual private IP address directly in the configuration file. Avoid using variables from `~/.bashrc` file, as daemon processes might run in a different environment and may not be able to interpret those variables.
+
 ### 1. Edit file hadoop-env.sh:
 
 ```bash
@@ -116,6 +122,7 @@ Set Java environment variable as,
 
 ```bash
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export HADOOP_NICENESS=0
 ```
 
 ### 2. Edit file core-site.xml:
@@ -126,21 +133,21 @@ this file informs the Hadoop daemon where NameNode runs in the cluster. It conta
 nano core-site.xml
 ```
 
-Set this properties in this file (these are basic for more specific setup visit official docs)
+Set this properties in this file (these are basic for more specific setup visit official docs), **use your private IP and username.**
 
 ```xml
 <configuration>
-    <!-- Default file system for HDFS -->
-    <property>
-        <name>fs.defaultFS</name>
-        <value>hdfs://0.0.0.0:9000</value>
-    </property>
+  <!-- HDFS Address -->
+  <property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://172.31.47.110:9000</value>
+  </property>
 
-    <!-- Temporary directory for Hadoop -->
-    <property>
-        <name>hadoop.tmp.dir</name>
-        <value>file:///home/prashu/hadoop/hadoop-3.4.1/tmp</value>
-    </property>
+  <!-- Temp Directory: User-specific path -->
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>file:///home/ubuntu/hadoop/tmp</value>
+  </property>
 </configuration>
 ```
 
@@ -150,32 +157,32 @@ Set this properties in this file (these are basic for more specific setup visit 
 nano hdfs-site.xml
 ```
 
-this file contains configuration settings of HDFS daemons (i.e. NameNode, DataNode, Secondary NameNode). It also includes the replication factor and block size of HDFS.
+this file contains configuration settings of HDFS daemons (i.e. NameNode, DataNode, Secondary NameNode). It also includes the replication factor and block size of HDFS, again **use your username.**
 
 ```xml
-<configuration>
-    <!-- Replication factor for single-node setup -->
-    <property>
-        <name>dfs.replication</name>
-        <value>1</value>
-    </property>
+  <!-- NameNode Directory: User-specific -->
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file:///home/ubuntu/hadoop/data/namenode</value>
+  </property>
 
-    <property>
-      <name>dfs.webhdfs.enabled</name>
-      <value>true</value>
-    </property>
+  <!-- DataNode Directory: User-specific -->
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file:///home/ubuntu/hadoop/data/datanode</value>
+  </property>
 
-    <!-- Directory for NameNode metadata, must otherwise you have to format the namenode after each startup -->
-    <property>
-        <name>dfs.namenode.name.dir</name>
-        <value>file:///home/prashu/hadoop/hadoop-3.4.1/data/namenode</value>
-    </property>
+  <!-- Replication Factor -->
+  <property>
+    <name>dfs.replication</name>
+    <value>1</value>
+  </property>
 
-    <!-- Directory for DataNode blocks -->
-    <property>
-        <name>dfs.datanode.data.dir</name>
-        <value>file:///home/prashu/hadoop/hadoop-3.4.1/data/datanode</value>
-    </property>
+  <!-- Enable WebHDFS if want to connect using hdfs -->
+  <property>
+    <name>dfs.webhdfs.enabled</name>
+    <value>true</value>
+  </property>
 </configuration>
 ```
 
@@ -218,6 +225,20 @@ this file contains configuration settings of ResourceManager and NodeManager lik
         <name>yarn.nodemanager.env-whitelist</name>
         <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
     </property>
+    <!-- The below setup is for m5.2xlarge, configure based on your system-->
+    <!-- Total resources YARN can use, spark-default resources must fit into this -->
+    <property>
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>24576</value> <!-- 24GB (leave other for OS/Hadoop-->
+    </property>
+    <property>
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
+        <value>7</value> <!-- Leave 1 core for OS/HDFS -->
+    </property>
+    <property>
+        <name>yarn.scheduler.maximum-allocation-mb</name>
+        <value>24576</value>
+    </property>
 </configuration>
 ```
 
@@ -225,7 +246,8 @@ this file contains configuration settings of ResourceManager and NodeManager lik
 
 Go to the Hadoop home directory and format the Hadoop namenode, This formats the HDFS via the NameNode. Formatting the file system means initializing the directory specified by the dfs.name.dir variable.
 
-Caution: By formatting, You will lose all your data stored in the HDFS.
+**Caution**: By formatting, You will lose all your data stored in the HDFS, and the jar files that you'll copy during aws setup, after each formatting you need to copy it again.
+**Note:** Hadoop services should be running before formatting the Namenode.
 
 ```bash
 cd ~/hadoop/hadoop-3.4.1
@@ -238,9 +260,9 @@ The NameNode is the centerpiece of an HDFS file system. It keeps the directory t
 
 On startup, a DataNode connects to the Namenode and it responds to the requests from the Namenode for different operations.
 
-these are the commands to start all hadoop deamons at once, however you can always choose to start specific services by executing their respective executables.
+These are the commands to start all hadoop daemons at once, however you can always choose to start specific services by executing their respective executables.
 
-**Note:** we have given an script to start all hadoop and spark services at once from home directory in the additional section.
+**Note:** We have given scripts to start/stop all hadoop and spark services at once from home directory in the additional section.
 
 ```bash
  ~/hadoop/hadoop-3.4.1/sbin/start-all.sh
@@ -256,15 +278,16 @@ jps
 ## 📂 Create HDFS Folders to store real datasets
 
 ```bash
-# you can check username ny `whoami` command
+# you can check username by `whoami` command
 hdfs dfs -mkdir /user
-hdfs dfs -mkdir /user/<user-name>/{tmpuploads,uploads,processed}
+hdfs dfs -mkdir /user/ubuntu
+hdfs dfs -mkdir /user/ubuntu/{tmpuploads, uploads, processed, tmpmerged}
 ```
 
 **Note:**
 
 - Upload datasets only to the tmpuploads folder.
-- The uploads and processed directories should be used programmatically only to avoid inconsistencies and internal failures.
+- The uploads, processed, and tmpmerged directories should be used programmatically only to avoid inconsistencies and internal failures.
 
 ## 📝 Sample commands for further use-
 
@@ -273,10 +296,10 @@ hdfs dfs -mkdir /user/<user-name>/{tmpuploads,uploads,processed}
 # these commands assume that dataset is on localhost and you're moving it to hdfs, for remote hadoop first copy the data into remote machine then move it to hdfs
 
 # list the datasets
-hdfs dfs -ls /user/cdis/processed
+hdfs dfs -ls /user/ubuntu/processed
 
 # upload the dataset
-hdfs dfs -put /mnt/d/projects/datasets/filename.csv /user/username/tmpuploads/filename.csv
+hdfs dfs -put "path/to/file" /user/ubuntu/tmpuploads/filename.csv
 
 # remove a directory or file (-r for recursive)
 hdfs dfs -rm -r /path/to/remove
@@ -284,11 +307,37 @@ hdfs dfs -rm -r /path/to/remove
 
 ## 🌐 Access hadoop web services-
 
-**WARNING:** links may change as per port availability, and use your public IP in place of localhost for deployed cluster.
+⚠️ **Important:** Web UI Links May Vary by Port & Access
+
+- For a deployed cluster, replace `localhost` with your public IP address and ensure the required ports are open in your security group.
+- Alternatively, set up an SSH tunnel from your local machine to the server (see script in the `additional-setup` section) to make the following links work properly.
+
+### 🔗 Common Hadoop & YARN Web UIs
+
+- **YARN ResourceManager**: [http://localhost:8088/cluster](http://localhost:8088/cluster)
+- **NodeManager**: [http://localhost:8042/node/](http://localhost:8042/node/)
+- **Hadoop NameNode**: [http://localhost:9870/](http://localhost:9870/)
+- **Hadoop DataNodes**: [http://localhost:9864/datanode.html](http://localhost:9864/datanode.html)
+
+You can use these web UIs to monitor and debug most aspects of the system. However, for programmatic access or command-line inspection, the following commands can be useful:
 
 ```bash
-YARN ResourceManager: http://localhost:8088/cluster
-HDFS NameNode: http://localhost:9870/dfshealth.html#tab-overview # or 9868 (command ss -tuln)
+# List all YARN nodes with detailed information
+yarn node -list -showDetails
+
+# Monitor YARN resource usage in real-time
+yarn top
+
+# View the latest 50 lines of the log
+# used tail -n 50 for last 50 lines
+tail -f $HADOOP_HOME/logs/hadoop*-namenode-*.log
+tail -f $HADOOP_HOME/logs/hadoop*-datanode-*.log
+tail -f $HADOOP_HOME/logs/hadoop*-nodemanager-*.log
+tail -f $HADOOP_HOME/logs/hadoop*-resourcemanager-*.log
+tail -f 50 $HADOOP_HOME/logs/hadoop*-secondarynamenode-*.log
+
+# Check the status of all running YARN applications
+yarn application -list
 ```
 
 ---
